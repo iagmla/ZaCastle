@@ -1,5 +1,9 @@
+int akms26_C0[25] = {10, 6, 2, 25, 21, 4, 11, 24, 16, 7, 0, 23, 3, 20, 22, 13, 8, 15, 1, 9, 18, 14, 19, 12, 17};
+
 int akms26_S0[26] = {8, 5, 2, 25, 22, 19, 16, 13, 10, 7, 4, 1, 24, 21, 18, 15, 12, 9, 6, 3, 0, 23, 20, 17, 14, 11};
 int akms26_S0i[26] = {20, 11, 2, 19, 10, 1, 18, 9, 0, 17, 8, 25, 16, 7, 24, 15, 6, 23, 14, 5, 22, 13, 4, 21, 12, 3};
+
+int akms26_ksa_rot[5] = {1, 3, 0, 4, 2};
 
 struct akms26_state {
     int S[5][5];
@@ -9,6 +13,34 @@ struct akms26_state {
     int next[5][5];
     int rounds;
 };
+
+void akms26_init(struct akms26_state *state) {
+    state->S[0][0] = akms26_C0[0];
+    state->S[0][1] = akms26_C0[1];
+    state->S[0][2] = akms26_C0[2];
+    state->S[0][3] = akms26_C0[3];
+    state->S[0][4] = akms26_C0[4];
+    state->S[1][0] = akms26_C0[5];
+    state->S[1][1] = akms26_C0[6];
+    state->S[1][2] = akms26_C0[7];
+    state->S[1][3] = akms26_C0[8];
+    state->S[1][4] = akms26_C0[9];
+    state->S[2][0] = akms26_C0[10];
+    state->S[2][1] = akms26_C0[11];
+    state->S[2][2] = akms26_C0[12];
+    state->S[2][3] = akms26_C0[13];
+    state->S[2][4] = akms26_C0[14];
+    state->S[3][0] = akms26_C0[15];
+    state->S[3][1] = akms26_C0[16];
+    state->S[3][2] = akms26_C0[17];
+    state->S[3][3] = akms26_C0[18];
+    state->S[3][4] = akms26_C0[19];
+    state->S[4][0] = akms26_C0[20];
+    state->S[4][1] = akms26_C0[21];
+    state->S[4][2] = akms26_C0[22];
+    state->S[4][3] = akms26_C0[23];
+    state->S[4][4] = akms26_C0[24];
+}
 
 void akms26_key_first_round(struct akms26_state *state, int *key26) {
     state->K[0][0][0] = key26[0];
@@ -67,19 +99,24 @@ void akms26_key_last_round(struct akms26_state *state, int *key26) {
 }
 
 void akms26_ksa(struct akms26_state *state, int *key26, int rounds) {
+    akms26_init(state);
     akms26_key_first_round(state, key26);
     akms26_key_last_round(state, key26);
+    memcpy(state->S, state->K[0], 25 * sizeof(int));
+    memcpy(state->T, state->K[15], 25 * sizeof(int));
+    int j = 0;
+    for (int r = 0; r < rounds - 1; r++) {
+        for (int x = 0; x < 5; x++) {
+            for (int c = 0; c < 5; c++) {
+                state->S[x][c] = modadd26(state->S[x][c], state->T[x][c]);
+                state->S[j][(c + 1) % 5] = modadd26(state->S[j][(c + 1) % 5], state->T[j][(c + 1) % 5]);
+                state->K[r][x][c] = state->S[x][c];
+                j = (j + state->S[x][c]) % 5;
+                rotate_block_left(state->S[j], 5, akms26_ksa_rot[j]);
+            }
+        }
+    }
 }
-
-void akms26_sub_block(struct akms26_state *state) {
-    state->S[0][0] = akms26_S0[state->S[0][0]];
-    state->S[0][1] = akms26_S0[state->S[0][1]];
-    state->S[0][2] = akms26_S0[state->S[0][2]];
-    state->S[0][3] = akms26_S0[state->S[0][3]];
-    state->S[0][4] = akms26_S0[state->S[0][4]];
-    state->S[1][0] = akms26_S0[state->S[1][0]];
-} 
-
 
 void akms26_sub_block(struct akms26_state *state) {
     state->S[0][0] = akms26_S0[state->S[0][0]];
@@ -138,22 +175,17 @@ void akms26_sub_block_inv(struct akms26_state *state) {
 }
 
 void akms26_rotate_block(struct akms26_state *state) {
-    int tmp;
-    tmp = state->S[1][0];
-    state->S[1][0] = state->S[1][1];
-    state->S[1][1] = tmp;
+    rotate_block_left(state->S[1], 5, 1);
+    rotate_block_left(state->S[2], 5, 2);
+    rotate_block_left(state->S[3], 5, 3);
+    rotate_block_left(state->S[4], 5, 4);
+}
 
-    tmp = state->S[1][1];
-    state->S[1][1] = state->S[1][2];
-    state->S[1][2] = tmp;
-
-    tmp = state->S[1][2];
-    state->S[1][2] = state->S[1][3];
-    state->S[1][3] = tmp;
-
-    tmp = state->S[1][3];
-    state->S[1][3] = state->S[1][4];
-    state->S[1][4] = tmp;
+void akms26_rotate_block_inv(struct akms26_state *state) {
+    rotate_block_right(state->S[1], 5, 1);
+    rotate_block_right(state->S[2], 5, 2);
+    rotate_block_right(state->S[3], 5, 3);
+    rotate_block_right(state->S[4], 5, 4);
 }
 
 void akms26_rotate_state(struct akms26_state *state) {
@@ -190,9 +222,21 @@ void akms26_mix0(struct akms26_state *state) {
     modadd26_block(state->S[1], 5, state->S[4]);
     modadd26_block(state->S[3], 5, state->S[1]);
     modadd26_block(state->S[0], 5, state->S[3]);
+
+    modadd26_block(state->S[0], 5, state->S[4]);
+    modadd26_block(state->S[1], 5, state->S[3]);
+    modadd26_block(state->S[2], 5, state->S[0]);
+    modadd26_block(state->S[3], 5, state->S[1]);
+    modadd26_block(state->S[4], 5, state->S[2]);
 }
 
 void akms26_mix0_inv(struct akms26_state *state) {
+    modsub26_block(state->S[4], 5, state->S[2]);
+    modsub26_block(state->S[3], 5, state->S[1]);
+    modsub26_block(state->S[2], 5, state->S[0]);
+    modsub26_block(state->S[1], 5, state->S[3]);
+    modsub26_block(state->S[0], 5, state->S[4]);
+
     modsub26_block(state->S[0], 5, state->S[3]);
     modsub26_block(state->S[3], 5, state->S[1]);
     modsub26_block(state->S[1], 5, state->S[4]);
@@ -200,18 +244,39 @@ void akms26_mix0_inv(struct akms26_state *state) {
     modsub26_block(state->S[2], 5, state->S[0]);
 }
 
+void akms26_add_key(struct akms26_state *state, int round) {
+    for (int x = 0; x < 5; x++) {
+        for (int y = 0; y < 5; y++) {
+            state->S[x][y] = modadd26(state->S[x][y], state->K[round][x][y]);
+        }
+    }
+}
+
+void akms26_sub_key(struct akms26_state *state, int round) {
+    for (int x = 0; x < 5; x++) {
+        for (int y = 0; y < 5; y++) {
+            state->S[x][y] = modsub26(state->S[x][y], state->K[round][x][y]);
+        }
+    }
+}
+
+
 void akms26_encrypt_block(struct akms26_state *state, int rounds) {
     for (int r = 0; r < rounds; r++) {
         akms26_sub_block(state);
+        akms26_rotate_block(state);
         akms26_rotate_state(state);
         akms26_mix0(state);
+        akms26_add_key(state, r);
     }
 }
 
 void akms26_decrypt_block(struct akms26_state *state, int rounds) {
     for (int r = rounds - 1; r != -1; r--) {
+        akms26_sub_key(state, r);
         akms26_mix0_inv(state);
         akms26_rotate_state_inv(state);
+        akms26_rotate_block_inv(state);
         akms26_sub_block_inv(state);
     }
 }
@@ -371,6 +436,7 @@ void akms26_cbc_sub(struct akms26_state *state) {
 void akms26_cbc_encrypt(char *inputfile, char *outputfile, char *passphrase) {
     struct akms26_state state;
     state.rounds = 16;
+    akms26_ksa(&state, passphrase, state.rounds);
     int blocklen = 25;
     int bufsize = 25;
     FILE *infile, *outfile;
@@ -418,6 +484,7 @@ void akms26_cbc_encrypt(char *inputfile, char *outputfile, char *passphrase) {
 void akms26_cbc_decrypt(char *inputfile, char *outputfile, char *passphrase) {
     struct akms26_state state;
     state.rounds = 16;
+    akms26_ksa(&state, passphrase, state.rounds);
     int blocklen = 25;
     int bufsize = 25;
     FILE *infile, *outfile;
