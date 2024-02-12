@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include "common/common.c"
+#include "hash/horakty.c"
 #include "ciphers/akms26_cbc.c"
 
 void usage() {
