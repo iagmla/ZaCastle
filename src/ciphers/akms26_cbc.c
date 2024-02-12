@@ -67,8 +67,8 @@ void akms26_key_last_round(struct akms26_state *state, int *key26) {
 }
 
 void akms26_ksa(struct akms26_state *state, int *key26, int rounds) {
-    akms26_ksa_first_round(state, key26);
-    akms26_ksa_last_round(state, key26);
+    akms26_key_first_round(state, key26);
+    akms26_key_last_round(state, key26);
 }
 
 void akms26_sub_block(struct akms26_state *state) {

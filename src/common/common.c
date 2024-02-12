@@ -62,6 +62,28 @@ void modsub26_block(int *blockA, int blocklen, int *blockB) {
     }
 }
 
+void rotate_block_left(int *block, int blocklen, int n) {
+    int tmp;
+    for (int i = 0; i < n; i++) {
+        for (int x = 0; x < blocklen - 1; x++) {
+            tmp = block[x];
+            block[x] = block[x + 1];
+            block[x+1] = tmp;
+        }
+    }
+}
+
+void rotate_block_right(int *block, int blocklen, int n) {
+    int tmp;
+    for (int i = 0; i < n; i++) {
+        for (int x = blocklen - 1; x != 0; x--) {
+            tmp = block[x];
+            block[x] = block[x - 1];
+            block[x-1] = tmp;
+        }
+    }
+}
+
 void urandom26 (int *block, int num_bytes) {
     FILE *randfile;
     randfile = fopen("/dev/urandom", "rb");
