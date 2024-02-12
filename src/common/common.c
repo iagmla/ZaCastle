@@ -96,6 +96,5 @@ void urandom26 (int *block, int num_bytes) {
             c += 1;
         }
     }
-    printf("%d\n", c);
     fclose(randfile);
 }
