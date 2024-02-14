@@ -152,11 +152,13 @@ void horakty_round(struct horakty_state *state, int round) {
 }
 
 void horakty_rounds(struct horakty_state *state) {
-    memcpy(state->T, state->S, 52 * sizeof(int));
+    //memcpy(state->T, state->S, 52 * sizeof(int));
     for (int r = 0; r < state->rounds; r++) {
+        memcpy(state->T, state->S, 52 * sizeof(int));
         horakty_round(state, r);
+        horakty_mix3(state);
     }
-    horakty_mix3(state);
+    //horakty_mix3(state);
 }
 
 void horakty_output(struct horakty_state *state, int *output, int outputlen) {

@@ -30,6 +30,14 @@ int affine_add26(int a, int b, int c) {
     return x;
 }
 
+int affine_sub26(int a, int b, int c) {
+    int x = ((a - c) * b) % 26;
+    if (x < 0) {
+        x += 26;
+    }
+    return x;
+}
+
 int convert_to_int(uint8_t x) {
     return (int)x - 65;
 }
