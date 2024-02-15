@@ -290,37 +290,6 @@ void akms26_mix1_inv(struct akms26_state *state) {
     modsub26_block(state->S[2], 5, state->S[0]);
 }
 
-void akms26_ksa(struct akms26_state *state, int *key26, int rounds) {
-    akms26_init(state);
-    akms26_key_first_round(state, key26);
-    akms26_key_last_round(state, key26);
-    memcpy(state->S, state->K[0], 25 * sizeof(int));
-    //memcpy(state->T, state->K[15], 25 * sizeof(int));
-    int tmp;
-    int j = 0;
-    for (int r = 1; r < rounds - 1; r++) {
-        memcpy(state->T, state->S, 25 * sizeof(int));
-        akms26_sub_block(state);
-        akms26_rotate_block(state);
-        akms26_rotate_state(state);
-        akms26_mix0(state);
-        akms26_mix1(state);
-        for (int x = 0; x < 5; x++) {
-            for (int c = 0; c < 5; c++) {
-                //akms26_mix0(state);
-                state->S[x][c] = modadd26(state->S[x][c], state->T[x][c]);
-                //state->K[15][x][c] = modadd26(state->K[15][x][c], state->S[x][c]);
-                //state->T[x][c] = modadd26(state->S[x][c], tmp);
-                //state->K[15][j][(c + 1) % 5] = modadd26(state->S[j][(c + 1) % 5], state->T[j][(c + 1) % 5]);
-                state->K[r][x][c] = state->S[x][c];
-                j = (j + state->S[x][c]) % 5;
-                //rotate_block_left(state->S[c], 5, akms26_ksa_rot[c]);
-            }
-            rotate_block_left(state->S[x], 5, akms26_ksa_rot[x]);
-        }
-    }
-}
-
 void akms26_add_key(struct akms26_state *state, int round) {
     for (int x = 0; x < 5; x++) {
         for (int y = 0; y < 5; y++) {
@@ -337,6 +306,40 @@ void akms26_sub_key(struct akms26_state *state, int round) {
     }
 }
 
+void akms26_ksa(struct akms26_state *state, int *key26, int rounds) {
+    memset(state->K, 0, rounds * 25 * sizeof(int));
+    akms26_init(state);
+    akms26_key_first_round(state, key26);
+    akms26_key_last_round(state, key26);
+    memcpy(state->S, state->K[0], 25 * sizeof(int));
+    memcpy(state->T, state->K[15], 25 * sizeof(int));
+    modadd26_block(state->S[0], 5, state->T[0]);
+    modadd26_block(state->S[1], 5, state->T[1]);
+    modadd26_block(state->S[2], 5, state->T[2]);
+    modadd26_block(state->S[3], 5, state->T[3]);
+    modadd26_block(state->S[4], 5, state->T[4]);
+    int tmp;
+    int j = 0;
+    for (int r = 1; r < rounds - 1; r++) {
+        memcpy(state->T, state->S, 25 * sizeof(int));
+        akms26_sub_block(state);
+        akms26_rotate_block(state);
+        akms26_rotate_state(state);
+        akms26_mix0(state);
+        akms26_mix1(state);
+        int rr = (r - 1) % rounds;
+        if (rr < 0) {
+            rr += rounds;
+        }
+        akms26_add_key(state, rr);
+        for (int x = 0; x < 5; x++) {
+            for (int c = 0; c < 5; c++) {
+                state->S[x][c] = modadd26(state->S[x][c], state->T[x][c]);
+                state->K[r][x][c] = state->S[x][c];
+            }
+        }
+    }
+}
 
 void akms26_encrypt_block(struct akms26_state *state, int rounds) {
     for (int r = 0; r < rounds; r++) {
