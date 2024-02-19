@@ -6,7 +6,7 @@
 #include "ciphers/akms26_cbc.c"
 
 void usage() {
-    printf("ZaCastle v0.02 - by KryptoMagick\n\n");
+    printf("ZaCastle v0.03 - by KryptoMagick\n\n");
     printf("Algorithms:\n***********\nakms26-cbc       50!\n\n");
     printf("Usage:\nzacastle <algorithm> -e <input file> <output file> <passphrase>>\n");
     printf("zacastle <algorithm> -d <input file> <output file> <passphrase>\n");

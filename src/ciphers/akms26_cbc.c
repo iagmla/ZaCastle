@@ -5,8 +5,6 @@ int akms26_S0i[26] = {20, 11, 2, 19, 10, 1, 18, 9, 0, 17, 8, 25, 16, 7, 24, 15, 
 int akms26_A0[5] = {7, 11, 17, 19, 23};
 int akms26_A0i[5] = {15, 19, 23, 11, 17};
 
-int akms26_ksa_rot[5] = {1, 3, 1, 4, 2};
-
 struct akms26_state {
     int S[5][5];
     int T[5][5];
@@ -263,31 +261,19 @@ void akms26_mix0_inv(struct akms26_state *state) {
 }
 
 void akms26_mix1(struct akms26_state *state) {
-    modadd26_block(state->S[2], 5, state->S[0]);
-    modadd26_block(state->S[4], 5, state->S[2]);
-    modadd26_block(state->S[1], 5, state->S[4]);
-    modadd26_block(state->S[3], 5, state->S[1]);
-    modadd26_block(state->S[0], 5, state->S[3]);
-
     modadd26_block(state->S[0], 5, state->S[4]);
     modadd26_block(state->S[1], 5, state->S[3]);
-    modadd26_block(state->S[2], 5, state->S[0]);
+    modadd26_block(state->S[2], 5, state->S[2]);
     modadd26_block(state->S[3], 5, state->S[1]);
-    modadd26_block(state->S[4], 5, state->S[2]);
+    modadd26_block(state->S[4], 5, state->S[0]);
 }
 
 void akms26_mix1_inv(struct akms26_state *state) {
-    modsub26_block(state->S[4], 5, state->S[2]);
+    modsub26_block(state->S[4], 5, state->S[0]);
     modsub26_block(state->S[3], 5, state->S[1]);
-    modsub26_block(state->S[2], 5, state->S[0]);
+    modsub26_block(state->S[2], 5, state->S[2]);
     modsub26_block(state->S[1], 5, state->S[3]);
     modsub26_block(state->S[0], 5, state->S[4]);
-
-    modsub26_block(state->S[0], 5, state->S[3]);
-    modsub26_block(state->S[3], 5, state->S[1]);
-    modsub26_block(state->S[1], 5, state->S[4]);
-    modsub26_block(state->S[4], 5, state->S[2]);
-    modsub26_block(state->S[2], 5, state->S[0]);
 }
 
 void akms26_add_key(struct akms26_state *state, int round) {
