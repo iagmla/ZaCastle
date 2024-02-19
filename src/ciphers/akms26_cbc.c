@@ -261,19 +261,19 @@ void akms26_mix0_inv(struct akms26_state *state) {
 }
 
 void akms26_mix1(struct akms26_state *state) {
-    modadd26_block(state->S[0], 5, state->S[4]);
+    modadd26_block(state->S[0], 5, state->S[2]);
     modadd26_block(state->S[1], 5, state->S[3]);
-    modadd26_block(state->S[2], 5, state->S[2]);
-    modadd26_block(state->S[3], 5, state->S[1]);
-    modadd26_block(state->S[4], 5, state->S[0]);
+    modadd26_block(state->S[2], 5, state->S[4]);
+    modadd26_block(state->S[3], 5, state->S[0]);
+    modadd26_block(state->S[4], 5, state->S[1]);
 }
 
 void akms26_mix1_inv(struct akms26_state *state) {
-    modsub26_block(state->S[4], 5, state->S[0]);
-    modsub26_block(state->S[3], 5, state->S[1]);
-    modsub26_block(state->S[2], 5, state->S[2]);
+    modsub26_block(state->S[4], 5, state->S[1]);
+    modsub26_block(state->S[3], 5, state->S[0]);
+    modsub26_block(state->S[2], 5, state->S[4]);
     modsub26_block(state->S[1], 5, state->S[3]);
-    modsub26_block(state->S[0], 5, state->S[4]);
+    modsub26_block(state->S[0], 5, state->S[2]);
 }
 
 void akms26_add_key(struct akms26_state *state, int round) {
