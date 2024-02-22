@@ -8,7 +8,7 @@
 
 void usage() {
     printf("ZaCastle v0.05 - by KryptoMagick\n\n");
-    printf("Algorithms:\n***********\nakms26-cbc       50!\n\n");
+    printf("Algorithms:\n***********\nakms26-cbc       50!\nakms226-cbc      52!\n\n");
     printf("Usage:\nzacastle <algorithm> -e <input file> <output file> <passphrase>>\n");
     printf("zacastle <algorithm> -d <input file> <output file> <passphrase>\n");
 }
