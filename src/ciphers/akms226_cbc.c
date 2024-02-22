@@ -361,8 +361,8 @@ void akms226_cbc_sub(struct akms226_state *state) {
 void akms226_cbc_encrypt(char *inputfile, char *outputfile, char *passphrase) {
     struct akms226_state state;
     state.rounds = 16;
-    int key[50] = {0};
-    //horakty_kdf(passphrase, key, 52, 1000);
+    int key[50];
+    horakty_kdf(passphrase, key, 52, 1000);
     akms226_ksa(&state, key);
     int blocklen = 26;
     int bufsize = 26;
@@ -411,7 +411,7 @@ void akms226_cbc_encrypt(char *inputfile, char *outputfile, char *passphrase) {
 void akms226_cbc_decrypt(char *inputfile, char *outputfile, char *passphrase) {
     struct akms226_state state;
     state.rounds = 16;
-    int key[50] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+    int key[50];
     horakty_kdf(passphrase, key, 52, 1000);
     akms226_ksa(&state, key);
     int blocklen = 26;
