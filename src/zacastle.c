@@ -4,9 +4,10 @@
 #include "common/common.c"
 #include "hash/horakty.c"
 #include "ciphers/akms26_cbc.c"
+#include "ciphers/akms226_cbc.c"
 
 void usage() {
-    printf("ZaCastle v0.04 - by KryptoMagick\n\n");
+    printf("ZaCastle v0.05 - by KryptoMagick\n\n");
     printf("Algorithms:\n***********\nakms26-cbc       50!\n\n");
     printf("Usage:\nzacastle <algorithm> -e <input file> <output file> <passphrase>>\n");
     printf("zacastle <algorithm> -d <input file> <output file> <passphrase>\n");
@@ -38,6 +39,16 @@ int main(int argc, char *argv[]) {
             akms26_cbc_decrypt(infile_name, outfile_name, passphrase);
         }
     }
+    else if (strcmp(algorithm, "akms226-cbc") == 0) {
+        if (strcmp(mode, encrypt_symbol) == 0) {
+            akms226_cbc_encrypt(infile_name, outfile_name, passphrase);
+        }
+        else if (strcmp(mode, decrypt_symbol) == 0) {
+            akms226_cbc_decrypt(infile_name, outfile_name, passphrase);
+        }
+    }
+    printf("\n");
+
     printf("\n");
     return 0;
 }
