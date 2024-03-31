@@ -12,7 +12,7 @@ void horakty_init(struct horakty_state *state) {
 }
 
 void horakty_mix0(struct horakty_state *state) {
-    modadd26_block(state->S[0], 13, state->S[2]);
+    modadd26_block(state->S[0], 13, state->S[1]);
     rotate_block_left(state->S[0], 13, 3);
     modadd26_block(state->S[3], 13, state->S[0]);
     rotate_block_right(state->S[1], 13, 6);
